@@ -7,15 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum role {
-  customer
-  admin
+enum Role {
+  CUSTOMER
+  ADMIN
 }
 
 enum isPaid {
-  pending
-  paid
-  canceled
+  PENDING
+  SUCCESS
+  CANCELLED
 }
 
 model Users {
@@ -23,12 +23,12 @@ model Users {
   username String
   email String @unique
   password String
-  role role
+  role Role
   profile_image String?
   address String?
   city String?
   post_code Int?
-  phone_number Int?
+  phone_number String?
   refresh_token String? @db.Text
 
   created_at DateTime @default(now())
@@ -93,6 +93,11 @@ model Transactions {
   notes String?
   proof String? 
 
+  address String?
+  city String?
+  post_code Int?
+  phone_number String?
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -106,6 +111,7 @@ model Transaction_Details {
   transaction_id Int
   product_id Int
   price Int
+  quantity Int
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

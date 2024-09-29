@@ -15,7 +15,7 @@ const getAllProducts = async () => {
 
 const getProductById = async (productId) => {
   try {
-    const result = await prisma.Products.findUnique({
+    const result = await prisma.products.findUnique({
       where: { id: productId },
     })
 
@@ -36,11 +36,11 @@ const createProduct = async (reqData) => {
 
   const productSlug = generateSlug(name)
 
-  const existsCategory = await prisma.Category.findUnique({
+  const existsCategory = await prisma.category.findUnique({
     where: { id: category_id },
   })
 
-  const existsName = await prisma.Products.findUnique({
+  const existsName = await prisma.products.findUnique({
     where: { slug: productSlug },
   })
 
@@ -62,7 +62,7 @@ const createProduct = async (reqData) => {
   }
 
   try {
-    const result = await prisma.Products.create({
+    const result = await prisma.products.create({
       data: productsFields,
     })
     return result
@@ -82,7 +82,7 @@ const updateProduct = async (productId, reqData) => {
   const updatedProduct = {}
 
   if (category_id) {
-    const existsCategory = await prisma.Category.findUnique({
+    const existsCategory = await prisma.category.findUnique({
       where: { id: category_id },
     })
 
@@ -95,7 +95,7 @@ const updateProduct = async (productId, reqData) => {
 
   if (name) {
     const productSlug = generateSlug(name)
-    const existName = await prisma.Products.findUnique({
+    const existName = await prisma.products.findUnique({
       where: { slug: productSlug },
     })
 
@@ -126,7 +126,7 @@ const updateProduct = async (productId, reqData) => {
   }
 
   try {
-    const result = await prisma.Products.update({
+    const result = await prisma.products.update({
       where: { id: productId },
       data: updatedProduct,
     })
@@ -145,7 +145,7 @@ const deleteProduct = async (productId) => {
   }
 
   try {
-    const result = await prisma.Products.delete({
+    const result = await prisma.products.delete({
       where: { id: productId },
     })
 

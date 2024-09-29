@@ -1,25 +1,28 @@
-import Auth from '../models/Auth.js'
-import Users from '../models/Users.js'
-import { validationResult } from 'express-validator'
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+import Auth from "../models/Auth.js"
+import Users from "../models/Users.js"
+import { validationResult } from "express-validator"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
 
 const register = async (req, res) => {
-  const { username, email, password, confirmPassword, role, profile_image, refresh_token } = req.body
+  const { username, email, password, confirmPassword, role } = req.body
 
   // Check validation input user
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(422).json({
       success: false,
-      message: 'validation error',
+      message: "validation error",
       errors: errors.array(),
     })
   }
 
   // match password & confirm password
   if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Password do not match' })
+    return res.status(400).json({
+      success: false,
+      message: "Password do not match",
+    })
   }
 
   try {
@@ -28,13 +31,11 @@ const register = async (req, res) => {
       email,
       password,
       role,
-      profile_image,
-      refresh_token,
     })
 
     return res.status(201).json({
       success: true,
-      message: 'Register success',
+      message: "Register success",
       data: result,
     })
   } catch (error) {
@@ -48,7 +49,7 @@ const login = async (req, res) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({
       success: false,
-      message: 'validate login error',
+      message: "validate login error",
       errors: errors.array(),
     })
   }
@@ -59,7 +60,7 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Email not found',
+        message: "Email not found",
       })
     }
 
@@ -68,7 +69,7 @@ const login = async (req, res) => {
     if (!matchPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Incorrect password',
+        message: "Incorrect password",
       })
     }
 
@@ -80,28 +81,28 @@ const login = async (req, res) => {
 
     // sign access token with jwt.sign
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '20m', // expired 20 minutes
+      expiresIn: "20m", // expired 20 minutes
     })
 
     // sign refresh token with jwt.sign
     const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: '1d', // expired 1 day
+      expiresIn: "1d", // expired 1 day
     })
 
     // update refresh token on db
     await Auth.updateUserToken(userId, refreshToken)
 
     // send refresh token to cookie
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      sameSite: 'Strict',
+      sameSite: "Strict",
       maxAge: 24 * 60 * 60 * 1000, // Hour * minute * second * mili second = 1 Day
     })
 
     // send access token if user success login
     return res.status(200).json({
       success: true,
-      message: 'Login Success',
+      message: "Login Success",
       accessToken,
     })
   } catch (error) {
@@ -118,10 +119,10 @@ const logout = async (req, res) => {
     const token = req.cookies.refreshToken
 
     // check cookies
-    if (!token || token === '') {
+    if (!token || token === "") {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized, token not provided',
+        message: "Unauthorized, token not provided",
       })
     }
 
@@ -130,7 +131,7 @@ const logout = async (req, res) => {
     if (!user) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied, invalid or expired token',
+        message: "Access denied, invalid or expired token",
       }) // Forbindden
     }
 
@@ -139,7 +140,7 @@ const logout = async (req, res) => {
     await Auth.deleteUserToken(userId)
 
     // remove cookies
-    res.clearCookie('refreshToken')
+    res.clearCookie("refreshToken")
 
     // return response
     return res.status(204).send()
@@ -154,10 +155,10 @@ const refreshToken = async (req, res) => {
     const token = req.cookies.refreshToken
 
     // check cookies
-    if (!token || token === '') {
+    if (!token || token === "") {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized, token not provided',
+        message: "Unauthorized, token not provided",
       }) // Unauthorized
     }
 
@@ -166,7 +167,7 @@ const refreshToken = async (req, res) => {
     if (!user) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied, invalid or expired token',
+        message: "Access denied, invalid or expired token",
       }) // Forbindden
     }
 
@@ -175,7 +176,7 @@ const refreshToken = async (req, res) => {
       if (err) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied, invalid or expired token',
+          message: "Access denied, invalid or expired token",
         })
       }
     })
@@ -188,7 +189,7 @@ const refreshToken = async (req, res) => {
 
     // set accessToken sign access token with jwt.sign
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '20m', // 20 minute
+      expiresIn: "20m", // 20 minute
     })
 
     // return access token

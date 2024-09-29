@@ -3,7 +3,7 @@ import generateSlug from '../utils/generateSlug.js'
 
 const getAllCategory = async () => {
   try {
-    const result = await prisma.Category.findMany()
+    const result = await prisma.category.findMany()
     return result
   } catch (error) {
     throw new Error('Error fetching all data category: ' + error.message)
@@ -12,7 +12,7 @@ const getAllCategory = async () => {
 
 const getCategoryById = async (categoryId) => {
   try {
-    const result = await prisma.Category.findUnique({
+    const result = await prisma.category.findUnique({
       where: { id: categoryId },
     })
 
@@ -26,7 +26,7 @@ const createCategory = async (reqData) => {
   const { name, category_image = null } = reqData
   const categorySlug = generateSlug(name)
 
-  const existsName = await prisma.Category.findUnique({
+  const existsName = await prisma.category.findUnique({
     where: { slug: categorySlug },
   })
 
@@ -41,7 +41,7 @@ const createCategory = async (reqData) => {
   }
 
   try {
-    const result = await prisma.Category.create({
+    const result = await prisma.category.create({
       data: categoryFields,
     })
 
@@ -65,7 +65,7 @@ const updateCategory = async (categoryId, reqData) => {
     // Check if user input data name
     if (name) {
       // check exsist name
-      const existName = await prisma.Category.findUnique({
+      const existName = await prisma.category.findUnique({
         where: { name: name },
       })
 
@@ -89,7 +89,7 @@ const updateCategory = async (categoryId, reqData) => {
       )
     }
 
-    const result = await prisma.Category.update({
+    const result = await prisma.category.update({
       where: { id: categoryId },
       data: updatedCategory ,
     })
@@ -102,7 +102,7 @@ const updateCategory = async (categoryId, reqData) => {
 
 const deleteCategory = async (categoryId) => {
   try {
-    const result = await prisma.Category.delete({
+    const result = await prisma.category.delete({
       where: { id: categoryId },
     })
 

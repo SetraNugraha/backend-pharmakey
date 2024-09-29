@@ -1,20 +1,20 @@
-import prisma from '../config/database.js'
-import bcrypt from 'bcrypt'
+import prisma from "../config/database.js"
+import bcrypt from "bcrypt"
 
 const register = async (reqData) => {
-  const { username, email, password, role = 'customer', profile_image = null, refresh_token = null } = reqData
+  const { username, email, password, role = "CUSTOMER" } = reqData
 
   // Filter email to lower case & no spacing (trim)
   const normalizedEmail = email.toLowerCase().trim()
 
   // find email from db
-  const existsEmail = await prisma.Users.findUnique({
+  const existsEmail = await prisma.users.findUnique({
     where: { email: normalizedEmail },
   })
 
   // check email exists or no
   if (existsEmail) {
-    throw new Error('Email already exists')
+    throw new Error("Email already exists")
   }
 
   // Hash Password
@@ -27,25 +27,23 @@ const register = async (reqData) => {
     email: normalizedEmail,
     password: hashPassword,
     role: role,
-    profile_image: profile_image,
-    refresh_token: refresh_token,
   }
 
   try {
     // Create new user
-    const result = await prisma.Users.create({
+    const result = await prisma.users.create({
       data: userFields,
     })
 
     return result
   } catch (error) {
-    throw new Error('Error while register: ' + error.message)
+    throw new Error("Error while register: " + error.message)
   }
 }
 
 const getUserByToken = async (token) => {
   try {
-    const result = await prisma.Users.findFirst({
+    const result = await prisma.users.findFirst({
       where: { refresh_token: token },
       select: {
         id: true,
@@ -58,33 +56,33 @@ const getUserByToken = async (token) => {
 
     return result
   } catch (error) {
-    throw new Error('Error get user by token: ' + error.message)
+    throw new Error("Error get user by token: " + error.message)
   }
 }
 
 const updateUserToken = async (userId, token) => {
   try {
-    const result = await prisma.Users.update({
+    const result = await prisma.users.update({
       where: { id: userId },
       data: { refresh_token: token },
     })
 
     return result
   } catch (error) {
-    throw new Error('Error update token: ' + error.message)
+    throw new Error("Error update token: " + error.message)
   }
 }
 
 const deleteUserToken = async (userId) => {
   try {
-    const result = await prisma.Users.update({
+    const result = await prisma.users.update({
       where: { id: userId },
       data: { refresh_token: null },
     })
 
     return result
   } catch (error) {
-    throw new Error('Error delete token: ' + error.message)
+    throw new Error("Error delete token: " + error.message)
   }
 }
 

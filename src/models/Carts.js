@@ -2,7 +2,7 @@ import prisma from '../config/database.js'
 
 const getAllCarts = async () => {
   try {
-    const result = await prisma.Carts.findMany()
+    const result = await prisma.carts.findMany()
 
     return result
   } catch (error) {
@@ -13,7 +13,7 @@ const getAllCarts = async () => {
 const getCartByUserId = async (userId) => {
   try {
     // make sure user exists
-    const user = await prisma.Users.findFirst({
+    const user = await prisma.users.findFirst({
       where: { id: userId },
       select: {
         id: true,
@@ -30,7 +30,7 @@ const getCartByUserId = async (userId) => {
       throw new Error('User not found')
     }
 
-    const cartItems = await prisma.Carts.findMany({
+    const cartItems = await prisma.carts.findMany({
       where: { user_id: user.id },
       select: {
         product_id: true,
@@ -49,7 +49,7 @@ const getCartByUserId = async (userId) => {
 const addItemToCart = async (userId, productId) => {
   try {
     // make sure user exists
-    const user = await prisma.Users.findFirst({
+    const user = await prisma.users.findFirst({
       where: { id: userId },
     })
 
@@ -57,7 +57,7 @@ const addItemToCart = async (userId, productId) => {
       throw new Error('User not found')
     }
 
-    const existsCartItem = await prisma.Carts.findFirst({
+    const existsCartItem = await prisma.carts.findFirst({
       where: {
         user_id: user.id,
         product_id: productId,
@@ -65,7 +65,7 @@ const addItemToCart = async (userId, productId) => {
     })
 
     if (existsCartItem) {
-      const updateQuantity = await prisma.Carts.update({
+      const updateQuantity = await prisma.carts.update({
         where: {
           // composite key, if where > 1 on update & delete
           user_id_product_id: {
@@ -80,7 +80,7 @@ const addItemToCart = async (userId, productId) => {
 
       return updateQuantity
     } else {
-      const newCartItem = await prisma.Carts.create({
+      const newCartItem = await prisma.carts.create({
         data: {
           user_id: user.id,
           product_id: productId,
@@ -98,7 +98,7 @@ const addItemToCart = async (userId, productId) => {
 const deleteItemCart = async (userId, productId) => {
   try {
     // make sure user exists
-    const user = await prisma.Users.findFirst({
+    const user = await prisma.users.findFirst({
       where: { id: userId },
     })
 
@@ -106,7 +106,7 @@ const deleteItemCart = async (userId, productId) => {
       throw new Error('User not found')
     }
 
-    const existsCartItem = await prisma.Carts.findFirst({
+    const existsCartItem = await prisma.carts.findFirst({
       where: {
         user_id: user.id,
         product_id: productId,
@@ -118,7 +118,7 @@ const deleteItemCart = async (userId, productId) => {
     }
 
     if (existsCartItem.quantity > 1) {
-      const updateQuantity = await prisma.Carts.update({
+      const updateQuantity = await prisma.carts.update({
         where: {
           user_id_product_id: {
             user_id: user.id,
@@ -132,7 +132,7 @@ const deleteItemCart = async (userId, productId) => {
 
       return updateQuantity
     } else {
-      const deleteItem = await prisma.Carts.delete({
+      const deleteItem = await prisma.carts.delete({
         where: {
           user_id_product_id: {
             user_id: user.id,

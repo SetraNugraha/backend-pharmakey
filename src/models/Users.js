@@ -2,7 +2,7 @@ import prisma from '../config/database.js'
 
 const getAllUsers = async () => {
   try {
-    const result = await prisma.Users.findMany({
+    const result = await prisma.users.findMany({
       select: {
         id: true,
         username: true,
@@ -25,7 +25,7 @@ const getAllUsers = async () => {
 
 const getUserById = async (userId) => {
   try {
-    const result = await prisma.Users.findUnique({
+    const result = await prisma.users.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -52,7 +52,7 @@ const getUserById = async (userId) => {
 
 const getUserByEmail = async (email) => {
   try {
-    const result = await prisma.Users.findUnique({
+    const result = await prisma.users.findUnique({
       where: { email: email },
       select: {
         id: true,
@@ -71,7 +71,7 @@ const getUserByEmail = async (email) => {
 
 const updateProfileUser = async (userId, reqData) => {
   // make sure user exists
-  const existsUser = await prisma.Users.findUnique({
+  const existsUser = await prisma.users.findUnique({
     where: { id: userId },
   })
 
@@ -89,7 +89,7 @@ const updateProfileUser = async (userId, reqData) => {
 
   // Email
   if (email) {
-    const existsEmail = await prisma.Users.findUnique({
+    const existsEmail = await prisma.users.findUnique({
       where: { email: email },
     })
 
@@ -130,7 +130,7 @@ const updateProfileUser = async (userId, reqData) => {
   }
 
   try {
-    const result = await prisma.Users.update({
+    const result = await prisma.users.update({
       where: { id: userId },
       data: updatedUser,
       select: {

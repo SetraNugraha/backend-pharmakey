@@ -30,7 +30,7 @@ export const verifyToken = (req, res, next) => {
 export const validateAdmin = (req, res, next) => {
   const { role } = req.user
 
-  if (role !== 'admin') {
+  if (role !== 'ADMIN') {
     return res.status(403).json({
       success: false,
       message: 'Access denied, admin only',
@@ -43,7 +43,7 @@ export const validateAdmin = (req, res, next) => {
 export const validateCustomer = (req, res, next) => {
   const { role } = req.user
 
-  if (role !== 'customer') {
+  if (role !== 'CUSTOMER') {
     return res.status(403).json({
       success: false,
       message: 'Accesss denied, customer only',
