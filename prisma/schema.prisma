@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum role {
+  customer
+  admin
+}
+
+enum isPaid {
+  pending
+  paid
+  canceled
+}
+
+model Users {
+  id Int @id @default(autoincrement())
+  username String
+  email String @unique
+  password String
+  role role
+  profile_image String?
+  address String?
+  city String?
+  post_code Int?
+  phone_number Int?
+  refresh_token String? @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relation
+  cart Carts[] 
+  transaction Transactions[]
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+  category_image String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  // Relation
+  product Products[]
+}
+
+model Products {
+  id Int @id @default(autoincrement())
+  category_id Int?
+  name String
+  slug String @unique
+  product_image String?
+  price Int
+  description String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relation
+  category Category? @relation(fields: [category_id], references: [id])
+  cart Carts[]
+  transaction_detail Transaction_Details[]
+}
+
+model Carts {
+  user_id Int
+  product_id Int
+  quantity Int @default(1)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relation
+  user Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  product Products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, product_id])
+}
+
+model Transactions {
+  id Int @id @default(autoincrement())
+  user_id Int
+  total_amount Int
+  is_paid isPaid
+  notes String?
+  proof String? 
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relation
+  user Users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  transaction_detail Transaction_Details[]
+}
+
+model Transaction_Details {
+  id Int @id @default(autoincrement())
+  transaction_id Int
+  product_id Int
+  price Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relation
+  product Products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  transaction Transactions @relation(fields: [transaction_id], references: [id], onDelete: Cascade)
+}
