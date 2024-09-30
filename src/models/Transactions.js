@@ -1,5 +1,15 @@
 import prisma from "../config/database.js"
 
+const getAllTransactions = async () => {
+  try {
+    const result = await prisma.transactions.findMany()
+
+    return result
+  } catch (error) {
+    throw new Error("Get all transactions error: " + error.message)
+  }
+}
+
 const checkout = async (userId, reqData) => {
   try {
     // Make sure user exists
@@ -85,6 +95,40 @@ const checkout = async (userId, reqData) => {
   }
 }
 
+const updateTransactionStatus = async (transactionId, newStatus) => {
+  try {
+    // Find transaction
+    const transaction = await prisma.transactions.findUnique({
+      where: { id: transactionId },
+    })
+
+    if (!transaction) {
+      throw new Error("Transaction not found")
+    }
+
+    if (transaction.is_paid !== "PENDING") {
+      throw new Error("Transaction status cannot be updated as it is not pending")
+    }
+
+    // Check proof uploaded
+    if (!transaction.proof || transaction.proof === null) {
+      throw new Error("Proof not uploaded")
+    }
+
+    // Update status to success
+    const result = await prisma.transactions.update({
+      where: { id: transactionId },
+      data: { is_paid: newStatus },
+    })
+
+    return result
+  } catch (error) {
+    throw new Error(`Update status to ${newStatus} error: ` + error.message)
+  }
+}
+
 export default {
+  getAllTransactions,
   checkout,
+  updateTransactionStatus,
 }
